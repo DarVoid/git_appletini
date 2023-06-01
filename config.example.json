@@ -1,0 +1,36 @@
+{
+  "contexts": {
+    "personal": {
+      "title": "personal",
+      "chrome_profile": "<chrome profile to open with this context>",
+      "github": {
+        "host": "github.com",
+        "username": "johndoe",
+        "token": "GITHUB_TOKEN",
+        "name": "John Doe",
+        "email": "johndoe@sapo.pt"
+      },
+      "poll": {
+        "enabled": true,
+        "frequency_s": 10
+      }
+    },
+    "work": {
+      "title": "Work",
+      "chrome_profile": "Profile 2",
+      "github": {
+        "host": "slef.hosted.domain.com",
+        "username": "jane.dame",
+        "token": "GITHUB_TOKEN",
+        "name": "Jane Dame",
+        "email": "Jane.Dame@lame.domain.com"
+      },
+      "poll": {
+        "enabled": false,
+        "frequency_s": 10
+      }
+    }
+  },
+  "default_context": "personal",
+  "item_count": 12
+}

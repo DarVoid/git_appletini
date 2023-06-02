@@ -29,6 +29,7 @@ var prBox *systray.MenuItem
 var currentHash string = ""
 var client *http.Client
 var prs []gqlgh.PullRequest
+var status *systray.MenuItem
 
 //go:embed assets/tray1.png
 var iconDefault []byte
@@ -73,20 +74,23 @@ func setTrayIcon(data []byte) {
 	systray.SetTemplateIcon(data, data)
 }
 
+func chooseContext(context string) {
+	currentContext = context
+	name := Contexts[currentContext].Github.Name
+	username := Contexts[currentContext].Github.Username
+	email := Contexts[currentContext].Github.Email
+	host := Contexts[currentContext].Github.Host
+	actions.ChangeToProfile(name, email, username, host)
+	status.ClickedCh <- struct{}{}
+}
 func changeToContext(item *systray.MenuItem, context string) { // ,  ...item *systray.MenuItem
 	for range item.ClickedCh {
-		fmt.Printf("context: %v\n", context)
-		currentContext = context
 		parent := item.GetParent()
 		for _, sibling := range parent.GetChildren() {
 			sibling.Uncheck()
 		}
 		item.Check()
-		name := Contexts[currentContext].Github.Name
-		username := Contexts[currentContext].Github.Username
-		email := Contexts[currentContext].Github.Email
-		host := Contexts[currentContext].Github.Host
-		actions.ChangeToProfile(name, email, username, host)
+		chooseContext(context)
 	}
 }
 
@@ -208,15 +212,32 @@ func syncPolledItems() {
 	}
 	setTrayIcon(iconDefault)
 }
+func handleContextChangeStatusBar(item *systray.MenuItem) {
+	for range item.ClickedCh {
+		title := fmt.Sprintf("[%v] Connected 🌐", Contexts[currentContext].Title)
+		item.SetTitle(title)
+	}
+}
+func statusBar() (a *systray.MenuItem) {
+	a = systray.AddMenuItem("", "")
+
+	a.Disable()
+	return
+}
+func startMain(channels ...chan struct{}) {
+	for _, channel := range channels {
+		channel <- struct{}{}
+	}
+}
+
 func onReady() {
 
 	setTrayIcon(iconDefault)
 	wg.Add(1)
-
-	addContexOptions()
-
+	status = statusBar()
+	go handleContextChangeStatusBar(status)
 	// iconChangeOptsExamples()
-
+	addContexOptions()
 	separator()
 
 	// addSelfDeletingMenu()
@@ -227,9 +248,8 @@ func onReady() {
 	separator()
 
 	exitOption()
-
+	chooseContext(currentContext)
 	fmt.Println("Running")
-	wg.Wait()
 }
 
 func onExit() {

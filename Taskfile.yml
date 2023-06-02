@@ -1,0 +1,24 @@
+version: '3'
+
+tasks:
+  default:   
+    cmds:
+      - task -l
+    #silent: true
+  run:   
+    desc: runs app
+    cmds:
+      - go run main.go
+    #silent: true
+  build: 
+    desc: build the this dope application
+    cmds:
+      - mkdir -p dist/
+      - task: clean
+      - go build -o dist/ main.go
+    #silent: true
+  clean: 
+    desc: remove dist files
+    cmds:
+      - rm -rf dist/*
+    #internal: true

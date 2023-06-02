@@ -29,6 +29,7 @@ var prBox *systray.MenuItem
 var currentHash string = ""
 var client *http.Client
 var prs []gqlgh.PullRequest
+var status *systray.MenuItem
 
 //go:embed assets/tray1.png
 var iconDefault []byte
@@ -46,8 +47,10 @@ var wg sync.WaitGroup
 
 func openGithub(item *systray.MenuItem) {
 	for range item.ClickedCh {
-		fmt.Printf("%v\n", Contexts[currentContext].Github.Host)
-		//TODO: open github from current context
+		url := fmt.Sprintf("https://%v", Contexts[currentContext].Github.Host)
+		profile := fmt.Sprintf("%v", Contexts[currentContext].ChromeProfile)
+
+		actions.OpenLink(url, profile)
 	}
 }
 func handleExit(item *systray.MenuItem) {
@@ -71,12 +74,23 @@ func setTrayIcon(data []byte) {
 	systray.SetTemplateIcon(data, data)
 }
 
+func chooseContext(context string) {
+	currentContext = context
+	name := Contexts[currentContext].Github.Name
+	username := Contexts[currentContext].Github.Username
+	email := Contexts[currentContext].Github.Email
+	host := Contexts[currentContext].Github.Host
+	actions.ChangeToProfile(name, email, username, host)
+	status.ClickedCh <- struct{}{}
+}
 func changeToContext(item *systray.MenuItem, context string) { // ,  ...item *systray.MenuItem
 	for range item.ClickedCh {
-		fmt.Printf("context: %v\n", context)
-		// item.parent.Chi
-		currentContext = context
-
+		parent := item.GetParent()
+		for _, sibling := range parent.GetChildren() {
+			sibling.Uncheck()
+		}
+		item.Check()
+		chooseContext(context)
 	}
 }
 
@@ -102,53 +116,39 @@ func addContextChange(parent *systray.MenuItem, contextKey string, context types
 	go addPolling(parent, context.Poll, contextKey)
 }
 
-func addOptionsIcons() {
+func addContexOptions() {
 	item := systray.AddMenuItem("Open Github", "Github")
 	go openGithub(item)
 
 	itemProfiles := systray.AddMenuItem("Context", "personal")
 
-	//##################################################################//
-	// 							comentable								//
-	//##################################################################//
-
 	for key, value := range data.Contexts {
+
+		//##################################################################//
+		//                          (Un)comentable                          //
+		//##################################################################//
+		// val, err := json.Marshal(types.Context{
+		// 	Title:         value.Title,
+		// 	ChromeProfile: value.ChromeProfile,
+		// 	Github:        value.Github,
+		// 	Poll:          value.Poll,
+		// })
+		// if err != nil {
+		// 	fmt.Printf("err: %v\n", err)
+		// }
+		// fmt.Printf("value: %v\n", string(val))
+		//##################################################################//
+		//##################################################################//
 		fmt.Printf("key: %v\n", key)
 		addContextChange(itemProfiles, key, value)
-		// cena := "personal"
-		// a := func() {
-		// 	fmt.Printf("cena: %v\n", cena)
-		// }
-		// go startPolling(a)
+		//##################################################################//
+		//                          there's code here                       //
+		//##################################################################//
 
-		// fmt.Printf("value: %v\n", value)
-		val, err := json.Marshal(types.Context{
-			Title:         value.Title,
-			ChromeProfile: value.ChromeProfile,
-			Github:        value.Github,
-			Poll:          value.Poll,
-		})
-		if err != nil {
-			fmt.Printf("err: %v\n", err)
-		}
-		fmt.Printf("value: %v\n", string(val))
 	}
-	//##################################################################//
-	//##################################################################//
 
 }
 
-func iconChangeOptsExamples() {
-
-	itemDefault := systray.AddMenuItem("Default Icon", "Bye")
-	go handleIconChange(itemDefault, iconDefault)
-	itemReviewable := systray.AddMenuItem("Have Mergeable Icon", "Bye")
-	go handleIconChange(itemReviewable, iconReviewable)
-	itemMergeable := systray.AddMenuItem("Have Reviewable Icon", "Bye")
-	go handleIconChange(itemMergeable, iconMergeable)
-	itemBoth := systray.AddMenuItem("Both Icon", "Bye")
-	go handleIconChange(itemBoth, iconBoth)
-}
 func exitOption() {
 	itemLast := systray.AddMenuItem("Exit", "Bye")
 	go handleExit(itemLast)
@@ -156,17 +156,6 @@ func exitOption() {
 
 func separator() {
 	systray.AddSeparator()
-}
-
-func handlerDeleteSelf(item *systray.MenuItem) {
-	for range item.ClickedCh {
-		item.GetChildren()
-	}
-}
-
-func addSelfDeletingMenu() {
-	item := systray.AddMenuItem("Kamikazi", "Kamikazi")
-	go handlerDeleteSelf(item)
 }
 
 func handleDebug(item *systray.MenuItem) {
@@ -223,15 +212,32 @@ func syncPolledItems() {
 	}
 	setTrayIcon(iconDefault)
 }
+func handleContextChangeStatusBar(item *systray.MenuItem) {
+	for range item.ClickedCh {
+		title := fmt.Sprintf("[%v] Connected 🌐", Contexts[currentContext].Title)
+		item.SetTitle(title)
+	}
+}
+func statusBar() (a *systray.MenuItem) {
+	a = systray.AddMenuItem("", "")
+
+	a.Disable()
+	return
+}
+func startMain(channels ...chan struct{}) {
+	for _, channel := range channels {
+		channel <- struct{}{}
+	}
+}
+
 func onReady() {
 
 	setTrayIcon(iconDefault)
 	wg.Add(1)
-
-	addOptionsIcons()
-
+	status = statusBar()
+	go handleContextChangeStatusBar(status)
 	// iconChangeOptsExamples()
-
+	addContexOptions()
 	separator()
 
 	// addSelfDeletingMenu()
@@ -242,9 +248,8 @@ func onReady() {
 	separator()
 
 	exitOption()
-
+	chooseContext(currentContext)
 	fmt.Println("Running")
-	wg.Wait()
 }
 
 func onExit() {
@@ -264,7 +269,7 @@ func polledPRs() {
 
 	ctx := auth2()
 	prsLocal := gqlgh.PrGQL{}
-	gqlgh.GetPullRequests("https://api.github.com/graphql", &prsLocal, client, ctx)
+	gqlgh.GetPullRequests(fmt.Sprintf("https://api.%v/graphql", Contexts[currentContext].Github.Host), &prsLocal, client, ctx)
 	prs = prsLocal.Extract()
 	cha := sha256.New()
 	marco, err := json.Marshal(prs)
@@ -286,8 +291,6 @@ func polledPRs() {
 func main() {
 	err := json.Unmarshal(b, &data)
 	ehp(err)
-
-	// fmt.Println(data)
 	systray.Run(onReady, onExit)
 }
 

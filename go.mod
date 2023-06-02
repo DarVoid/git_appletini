@@ -8,7 +8,7 @@ require (
 	golang.org/x/oauth2 v0.8.0
 )
 
-replace github.com/getlantern/systray => github.com/darvoid/systray v0.0.0-20230531213117-057bc342d0c4
+replace github.com/getlantern/systray => github.com/darvoid/systray v0.0.0-20230601235138-3de2bd061be2
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect

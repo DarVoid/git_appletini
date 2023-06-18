@@ -14,6 +14,8 @@ import (
 	"sync"
 	"time"
 
+	"os"
+
 	"github.com/getlantern/systray"
 	"golang.org/x/oauth2"
 	_ "golang.org/x/oauth2"
@@ -296,8 +298,9 @@ func main() {
 
 func auth2() (ctx context.Context) {
 	ctx = context.Background()
+
 	ts := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: Contexts[currentContext].Github.Token},
+		&oauth2.Token{AccessToken: os.Getenv(Contexts[currentContext].Github.Token)},
 	)
 	client = oauth2.NewClient(ctx, ts)
 	return

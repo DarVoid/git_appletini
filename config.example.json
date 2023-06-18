@@ -6,7 +6,7 @@
       "github": {
         "host": "github.com",
         "username": "johndoe",
-        "token": "GITHUB_TOKEN",
+        "token": "insert env variable here that has Personal acces token",
         "name": "John Doe",
         "email": "johndoe@sapo.pt"
       },
@@ -21,7 +21,7 @@
       "github": {
         "host": "slef.hosted.domain.com",
         "username": "jane.dame",
-        "token": "GITHUB_TOKEN",
+        "token": "GITHUB_GRAPHQL_TEST_TOKEN",
         "name": "Jane Dame",
         "email": "Jane.Dame@lame.domain.com"
       },

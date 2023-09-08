@@ -16,7 +16,7 @@ import (
 
 	"os"
 
-	"github.com/getlantern/systray"
+	"fyne.io/systray"
 	"golang.org/x/oauth2"
 	_ "golang.org/x/oauth2"
 )

@@ -1,6 +1,6 @@
 module required
 
-go 1.21.0
+go 1.21
 
 require golang.org/x/oauth2 v0.12.0
 

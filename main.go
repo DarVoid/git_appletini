@@ -272,7 +272,9 @@ func polledPRs() {
 	ctx := auth2()
 	prsLocal := gitter.PrResponse{}
 	gitter.GetPullRequests(Contexts[currentContext].Github.GraphQL, &prsLocal, os.Getenv(Contexts[currentContext].Github.Token), ctx)
+	fmt.Printf("prsLocal: %v\n", prsLocal)
 	prs = prsLocal.Extract()
+
 	cha := sha256.New()
 	marco, err := json.Marshal(prs)
 	ehp(err)

@@ -8,7 +8,7 @@ import (
 )
 
 func GetPullRequests(url string, data *PrResponse, token string, ctx context.Context) {
-	fmt.Println(url)
+
 	req := graphql.NewRequest(
 		`query fetchPRs { viewer { pullRequests(orderBy: { field: CREATED_AT, direction: ASC}, first: 100 states: OPEN) { edges { node { title baseRefName headRefName number permalink reviewRequests { totalCount } reviews { totalCount } reviewDecision } } } } }`)
 
@@ -17,13 +17,10 @@ func GetPullRequests(url string, data *PrResponse, token string, ctx context.Con
 
 	req.Header.Add("Authorization", fmt.Sprintf("Bearer %v", token))
 
-	var result PrResponse
-	if err := client.Run(context.Background(), req, &result); err != nil {
+	if err := client.Run(context.Background(), req, &data); err != nil {
 		fmt.Println(err)
 
 	}
-
-	fmt.Println("RESULTS!!", result)
 }
 
 type PrResponse struct {
@@ -43,7 +40,7 @@ type pullRequest struct {
 	Title       string `json:"title"`
 	BaseRefName string `json:"baseRefName"`
 	HeadRefName string `json:"headRefName"`
-	Number      string `json:"number"`
+	Number      int    `json:"number"`
 	Permalink   string `json:"permalink"`
 	ReviewCount struct {
 		TotalCount int `json:"totalCount"`
@@ -59,7 +56,7 @@ type PullRequest struct {
 	Title       string `json:"title"`
 	BaseRefName string `json:"baseRefName"`
 	HeadRefName string `json:"headRefName"`
-	Number      string `json:"number"`
+	Number      int    `json:"number"`
 	Permalink   string `json:"permalink"`
 	ReviewCount int    `json:"reviewCount"`
 

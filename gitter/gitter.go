@@ -1,30 +1,44 @@
-package gqlgh
+package gitter
 
 import (
-	"encoding/json"
+	"context"
 	"fmt"
-	"io"
-	"strings"
 
-	"net/http"
-
-	"golang.org/x/net/context"
+	"github.com/machinebox/graphql"
 )
 
-type PrGQL struct {
-	Data struct {
-		Viewer struct {
-			PullRequests struct {
-				Nodes []edge `json:"edges"`
-			} `json:"pullRequests"`
-		} `json:"viewer"`
-	} `json:"data"`
+func GetPullRequests(url string, data *PrResponse, token string, ctx context.Context) {
+	fmt.Println(url)
+	req := graphql.NewRequest(
+		`query fetchPRs { viewer { pullRequests(orderBy: { field: CREATED_AT, direction: ASC}, first: 100 states: OPEN) { edges { node { title baseRefName headRefName number permalink reviewRequests { totalCount } reviews { totalCount } reviewDecision } } } } }`)
+
+	client := graphql.NewClient(url)
+	// TODO: do the same for organization
+
+	req.Header.Add("Authorization", fmt.Sprintf("Bearer %v", token))
+
+	var result PrResponse
+	if err := client.Run(context.Background(), req, &result); err != nil {
+		fmt.Println(err)
+
+	}
+
+	fmt.Println("RESULTS!!", result)
+}
+
+type PrResponse struct {
+	Viewer struct {
+		PullRequests struct {
+			Nodes []edge `json:"edges"`
+		} `json:"pullRequests"`
+	} `json:"viewer"`
 }
 
 // Gargabe stsart
 type edge struct {
 	Node pullRequest `json:"node"`
 }
+
 type pullRequest struct {
 	Title       string `json:"title"`
 	BaseRefName string `json:"baseRefName"`
@@ -66,31 +80,11 @@ func (pr pullRequest) transform() PullRequest {
 		ReviewDecision: pr.ReviewDecision,
 	}
 }
-func (pr PrGQL) Extract() []PullRequest {
+func (pr PrResponse) Extract() []PullRequest {
 	prs := []PullRequest{}
-	for _, val := range pr.Data.Viewer.PullRequests.Nodes {
+	for _, val := range pr.Viewer.PullRequests.Nodes {
 		prs = append(prs, val.Node.transform())
 	}
 
 	return prs
-}
-
-func GetPullRequests(url string, data *PrGQL, client *http.Client, ctx context.Context) {
-	query := strings.NewReader(
-		`{	"operationName":"fetchPRs",
-			"variables":{},
-			"query": 
-			"query fetchPRs { viewer { pullRequests(orderBy: { field: CREATED_AT, direction: ASC}, first: 100 states: OPEN) { edges { node { title baseRefName headRefName number permalink reviewRequests { totalCount } reviews { totalCount } reviewDecision } } } } }"
-			}`)
-
-	resp, err := client.Post(url, "application/json", query)
-	ehp(err)
-	body, _ := io.ReadAll(resp.Body)
-	json.Unmarshal(body, data)
-}
-
-func ehp(err error) {
-	if err != nil {
-		fmt.Println(err)
-	}
 }

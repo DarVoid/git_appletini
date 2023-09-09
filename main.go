@@ -7,8 +7,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"git_applet/actions"
-	"git_applet/gqlgh"
-	_ "git_applet/gqlgh"
+	"git_applet/gitter"
+	_ "git_applet/gitter"
 	"git_applet/types"
 	"net/http"
 	"sync"
@@ -30,7 +30,7 @@ var currentContext string
 var prBox *systray.MenuItem
 var currentHash string = ""
 var client *http.Client
-var prs []gqlgh.PullRequest
+var prs []gitter.PullRequest
 var status *systray.MenuItem
 
 //go:embed assets/tray1.png
@@ -87,12 +87,12 @@ func chooseContext(context string) {
 }
 func changeToContext(item *systray.MenuItem, context string) { // ,  ...item *systray.MenuItem
 	for range item.ClickedCh {
-		parent := item.GetParent()
-		for _, sibling := range parent.GetChildren() {
-			sibling.Uncheck()
-		}
-		item.Check()
-		chooseContext(context)
+		// parent := item.GetParent()
+		// for _, sibling := range parent.GetChildren() {
+		// 	sibling.Uncheck()
+		// }
+		// item.Check()
+		// chooseContext(context)
 	}
 }
 
@@ -162,7 +162,7 @@ func separator() {
 
 func handleDebug(item *systray.MenuItem) {
 	for range item.ClickedCh {
-		fmt.Printf("item.GetChildren(): %v\n", item.GetChildren())
+		// fmt.Printf("item.GetChildren(): %v\n", item.GetChildren())
 	}
 }
 func addPRContainer() {
@@ -176,7 +176,7 @@ func syncPolledItems() {
 	decisions["CHANGES_REQUESTED"] = "RIP, you tried💩"
 	decisions[""] = "on Hold..."
 
-	prBox.RemoveChildren()
+	// prBox.RemoveChildren()
 	green, red := false, false
 	for _, pr := range prs {
 		fmt.Printf("pr.ReviewRequests: %v\n", pr.ReviewRequests)
@@ -270,8 +270,8 @@ func polledPRs() {
 	Contexts = data.Contexts
 
 	ctx := auth2()
-	prsLocal := gqlgh.PrGQL{}
-	gqlgh.GetPullRequests(fmt.Sprintf("https://api.%v/graphql", Contexts[currentContext].Github.Host), &prsLocal, client, ctx)
+	prsLocal := gitter.PrResponse{}
+	gitter.GetPullRequests(Contexts[currentContext].Github.GraphQL, &prsLocal, os.Getenv(Contexts[currentContext].Github.Token), ctx)
 	prs = prsLocal.Extract()
 	cha := sha256.New()
 	marco, err := json.Marshal(prs)

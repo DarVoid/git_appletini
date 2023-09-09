@@ -15,6 +15,7 @@ type Context struct {
 }
 type GithubConfig struct {
 	Host     string `json:"host"`
+	GraphQL  string `json:"gqlAPI"`
 	Username string `json:"username"`
 	Token    string `json:"token"`
 	Name     string `json:"name"`

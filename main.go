@@ -1,24 +1,24 @@
 package main
 
 import (
+	"actions"
 	"context"
 	"crypto/sha256"
 	_ "embed"
 	"encoding/json"
 	"fmt"
-	"git_applet/actions"
-	"git_applet/gitter"
-	_ "git_applet/gitter"
-	"git_applet/types"
+	"gitter"
+	_ "gitter"
 	"net/http"
 	"sync"
 	"time"
+	"types"
 
 	"os"
 
-	"fyne.io/systray"
+	"systray"
+
 	"golang.org/x/oauth2"
-	_ "golang.org/x/oauth2"
 )
 
 //go:embed config.json
@@ -272,7 +272,7 @@ func polledPRs() {
 	ctx := auth2()
 	prsLocal := gitter.PrResponse{}
 	gitter.GetPullRequests(Contexts[currentContext].Github.GraphQL, &prsLocal, os.Getenv(Contexts[currentContext].Github.Token), ctx)
-	fmt.Printf("prsLocal: %v\n", prsLocal)
+
 	prs = prsLocal.Extract()
 
 	cha := sha256.New()

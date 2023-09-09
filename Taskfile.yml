@@ -7,6 +7,7 @@ tasks:
     #silent: true
   run:   
     desc: runs app
+    dir: main
     cmds:
       - go run main.go
     #silent: true

@@ -1,0 +1,9 @@
+go 1.21
+
+use (
+	./actions
+	./gitter
+	./systray
+	./types
+	./required
+)

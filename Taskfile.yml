@@ -12,13 +12,14 @@ tasks:
     #silent: true
   build: 
     desc: build the this dope application
+    deps:
+      - clean
     cmds:
-      - mkdir -p dist/
-      - task: clean
       - go build -o dist/ main.go
     #silent: true
   clean: 
     desc: remove dist files
     cmds:
+      - mkdir -p dist/
       - rm -rf dist/*
     #internal: true

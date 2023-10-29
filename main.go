@@ -41,21 +41,25 @@ func main() {
 	a := app.New()
 
 	if desk, ok := a.(desktop.App); ok {
-		m := fyne.NewMenu("Git Applet",
-
-			fyne.NewMenuItem("Show", func() {
-				fmt.Println("Clicked")
-			}))
+		m := fyne.NewMenu("Git Applet")
 
 		desk.SetSystemTrayMenu(m)
-		desk.SetSystemTrayIcon(resIconDefault)
 
-		m.Items = append(m.Items, fyne.NewMenuItem("Show 2", func() {
-			fmt.Println("Clicked")
-			m.Items = m.Items[:1]
-			m.Refresh()
-		}))
+		a.Lifecycle().SetOnStarted(func() {
+			desk.SetSystemTrayIcon(resIconDefault)
+		})
 
+		m.Items = []*fyne.MenuItem{
+			fyne.NewMenuItem("Show", func() {
+				fmt.Println("Clicked")
+				desk.SetSystemTrayIcon(resIconReviewable)
+			}),
+			fyne.NewMenuItem("Show 2", func() {
+				fmt.Println("Clicked")
+				m.Items = m.Items[:1]
+				m.Refresh()
+			}),
+		}
 	}
 	a.Run()
 }

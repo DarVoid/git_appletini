@@ -5,13 +5,29 @@ tasks:
     cmds:
       - task -l
     #silent: true
+  setup: # https://developer.fyne.io/started/
+    desc: install necessary deps (ubuntu/debian)
+    cmds:
+      - sudo apt-get install golang gcc libgl1-mesa-dev xorg-dev -y
+  test-env:
+    desc: Test that system has necessary runtime deps installed
+    cmds:
+      - go run fyne.io/fyne/v2/cmd/fyne_demo@latest
+  format:
+    desc: format the project
+    cmds:
+      - go fmt ./...
   run:   
     desc: runs app
+    deps:
+      - format
     cmds:
       - go run main.go
     #silent: true
   build: 
     desc: build the this dope application
+    deps:
+      - format
     cmds:
       - mkdir -p dist/
       - task: clean

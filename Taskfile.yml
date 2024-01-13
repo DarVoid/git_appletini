@@ -8,7 +8,7 @@ tasks:
   setup: # https://developer.fyne.io/started/
     desc: install necessary deps (ubuntu/debian)
     cmds:
-      - sudo apt-get install golang gcc libgl1-mesa-dev xorg-dev -y
+      - sudo apt install golang gcc libgl1-mesa-dev xorg-dev -y
   test-env:
     desc: Test that system has necessary runtime deps installed
     cmds:
@@ -22,7 +22,7 @@ tasks:
     deps:
       - format
     cmds:
-      - go run main.go
+      - go run main.go icons.go
     #silent: true
   build: 
     desc: build the this dope application

@@ -22,7 +22,7 @@ tasks:
     deps:
       - format
     cmds:
-      - go run main.go icons.go
+      - go run main.go icons.go polls.go auth.go globals.go config.go
     #silent: true
   build: 
     desc: build the this dope application

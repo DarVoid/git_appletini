@@ -46,57 +46,42 @@ func polledPRs() {
 
 }
 func syncPolledItems() {
-	fmt.Println("YO")
-	decisions := make(map[string]string)
-	decisions["APPROVED"] = "APPROVED ✔️"
-	decisions["CHANGES_REQUESTED"] = "RIP, you tried💩"
-	decisions[""] = "on Hold..."
-
-	// prBox.RemoveChildren()
+	clearPRItems()
 	green, red := false, false
 	for _, pr := range prs {
 		pushPR(pr)
+
 		fmt.Printf("pr.ReviewRequests: %v\n", pr.ReviewRequests)
-		if pr.ReviewDecision == "APPROVED" {
+
+		if pr.ReviewDecision == SHOW_GREEN_ON {
 			green = true
 		}
-		if pr.ReviewDecision == "" {
+
+		if pr.ReviewDecision == SHOW_RED_ON {
 			red = true
 		}
-		fmt.Printf("pr.ReviewDecision: %v\n", pr.ReviewDecision)
-		// status, ok := decisions[pr.ReviewDecision]
 
-		// if !ok {
-		// 	status = ""
-		// }
-		fmt.Println("YO2")
+		fmt.Printf("pr.ReviewDecision: %v\n", pr.ReviewDecision)
 
 		if pr.ReviewCount > 0 {
 			fmt.Printf("%v", "❗")
 		}
-		fmt.Println("YO3")
-
-		// val := fmt.Sprintf("%v => %v\nStatus:%v\n\n -- %v", pr.HeadRefName, pr.BaseRefName, status, pr.Title)
-		// item := prBox.AddSubMenuItem(val, val)
-		// go handleLink(item, pr.Permalink) // TODO: uncomment
 	}
-	if green && red {
-		fmt.Println("YOsad")
 
+	if green && red {
 		desk.SetSystemTrayIcon(resIconBoth)
 		return
 	}
+
 	if red {
-		fmt.Println("YOsad2")
 		desk.SetSystemTrayIcon(resIconReviewable)
 		return
 	}
+
 	if green {
-		fmt.Println("YOsad3")
 		desk.SetSystemTrayIcon(resIconMergeable)
 		return
 	}
-	fmt.Println("YO4")
 
 	desk.SetSystemTrayIcon(resIconDefault)
 }

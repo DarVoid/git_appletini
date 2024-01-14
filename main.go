@@ -52,12 +52,12 @@ func pushPRItem(title string, action func()) {
 
 func pushPR(pr gitter.PullRequest) {
 
-	status, ok := decisions[pr.ReviewDecision]
-	if !ok {
-		status = ""
-	}
-	val := fmt.Sprintf("(#%d) %s\n[%s] ↦ [%s]\n%s", pr.Number, pr.Title, pr.HeadRefName, pr.BaseRefName, status)
-	pushPRItem(val, func() {
+	approve_status, _ := decision_messages[pr.ReviewDecision]
+	merge_status, _ := merge_messages[pr.Mergeable]
+
+	title := fmt.Sprintf("(#%d) %s\n[%s] ↦ [%s]\n%s\n%s", pr.Number, pr.Title, pr.HeadRefName, pr.BaseRefName, approve_status, merge_status)
+
+	pushPRItem(title, func() {
 		actions.OpenLink(pr.Permalink, Contexts[currentContext].ChromeProfile)
 	})
 }

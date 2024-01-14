@@ -10,7 +10,49 @@ import (
 func GetPullRequests(url string, data *PrResponse, token string, ctx context.Context) {
 
 	req := graphql.NewRequest(
-		`query fetchPRs { viewer { pullRequests(orderBy: { field: CREATED_AT, direction: ASC}, first: 100 states: OPEN) { edges { node { title baseRefName headRefName number permalink reviewRequests { totalCount } reviews { totalCount } reviewDecision } } } } }`)
+		`query fetchPRs {
+			viewer {
+			  pullRequests(
+				orderBy: {field: CREATED_AT, direction: ASC}
+				first: 100
+				states: [OPEN]
+				
+			  ) {
+				
+				edges {
+				  node {
+					repository{
+					  name
+					  url
+						owner{
+						id
+					  }
+					}
+					reviewDecision
+					
+					title
+					baseRefName
+					headRefName
+					number
+					permalink
+					reviewRequests {
+					  totalCount
+					  
+					}
+					reviews(first:12) {
+					  
+					  totalCount
+					  nodes{
+						state
+						
+					  }
+					}
+					mergeable
+				  }
+				}
+			  }
+			}
+		  }`)
 
 	client := graphql.NewClient(url)
 	// TODO: do the same for organization
@@ -49,6 +91,7 @@ type pullRequest struct {
 		TotalCount int `json:"totalCount"`
 	} `json:"reviewRequests"`
 	ReviewDecision string `json:"reviewDecision"`
+	Mergeable      string `json:"mergeable"`
 }
 
 // Garbage end
@@ -62,6 +105,8 @@ type PullRequest struct {
 
 	ReviewRequests int    `json:"reviewRequests"`
 	ReviewDecision string `json:"reviewDecision"`
+
+	Mergeable string `json:"mergeable"`
 }
 
 func (pr pullRequest) transform() PullRequest {
@@ -75,6 +120,7 @@ func (pr pullRequest) transform() PullRequest {
 		ReviewCount:    pr.ReviewCount.TotalCount,
 		ReviewRequests: pr.ReviewRequests.TotalCount,
 		ReviewDecision: pr.ReviewDecision,
+		Mergeable:      pr.Mergeable,
 	}
 }
 func (pr PrResponse) Extract() []PullRequest {

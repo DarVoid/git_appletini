@@ -55,6 +55,7 @@ func syncPolledItems() {
 	// prBox.RemoveChildren()
 	green, red := false, false
 	for _, pr := range prs {
+		pushPR(pr)
 		fmt.Printf("pr.ReviewRequests: %v\n", pr.ReviewRequests)
 		if pr.ReviewDecision == "APPROVED" {
 			green = true

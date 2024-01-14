@@ -3,6 +3,8 @@ package main
 import (
 	_ "embed"
 	"fmt"
+	"git_applet/actions"
+	"git_applet/gitter"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
@@ -34,17 +36,30 @@ func createApp() fyne.App {
 	return a
 }
 
-func clearPRs() {
+func clearPRItems() {
 	prBox.ChildMenu.Items = []*fyne.MenuItem{}
 	mprincipal.Refresh()
 }
 
-func pushPR(title string, action func()) {
+func pushPRItem(title string, action func()) {
 	prBox.ChildMenu.Items = append(
 		prBox.ChildMenu.Items,
 		fyne.NewMenuItem(title, action),
+		fyne.NewMenuItemSeparator(),
 	)
 	mprincipal.Refresh()
+}
+
+func pushPR(pr gitter.PullRequest) {
+
+	status, ok := decisions[pr.ReviewDecision]
+	if !ok {
+		status = ""
+	}
+	val := fmt.Sprintf("(#%d) %s\n[%s] ↦ [%s]\n%s", pr.Number, pr.Title, pr.HeadRefName, pr.BaseRefName, status)
+	pushPRItem(val, func() {
+		actions.OpenLink(pr.Permalink, Contexts[currentContext].ChromeProfile)
+	})
 }
 
 func addItems() {
@@ -54,7 +69,7 @@ func addItems() {
 	mprincipal.Items = []*fyne.MenuItem{
 		fyne.NewMenuItem("change icon", func() {
 			fmt.Println("Clicked")
-			pushPR("Test PR", func() {})
+			pushPRItem("Test PR", func() {})
 			// desk.SetSystemTrayIcon(resIconReviewable)
 		}),
 		fyne.NewMenuItem("delete self", func() {

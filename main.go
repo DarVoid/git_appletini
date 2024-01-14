@@ -10,6 +10,13 @@ import (
 )
 
 func main() {
+	a := createApp()
+	addItems()
+	go polledPRs()
+	a.Run()
+}
+
+func createApp() fyne.App {
 	a := app.NewWithID("git_appletini")
 	loadConfig()
 	var ok bool
@@ -17,27 +24,37 @@ func main() {
 	if !ok {
 		panic("could not create desktop app")
 	}
-	mprincipal = fyne.NewMenu("Git Applet")
 
+	mprincipal = fyne.NewMenu("Git Applet")
 	desk.SetSystemTrayMenu(mprincipal)
 
 	a.Lifecycle().SetOnStarted(func() {
 		desk.SetSystemTrayIcon(resIconDefault)
 	})
+	return a
+}
+
+func addItems() {
+	prBox = fyne.NewMenuItem("PRs", func() {})
+
+	// prBox.ChildMenu.Items = []*fyne.MenuItem{
+	// 	fyne.NewMenuItem("Hello there", func() {}),
+	// 	fyne.NewMenuItemSeparator(),
+	// }
 
 	mprincipal.Items = []*fyne.MenuItem{
-		fyne.NewMenuItem("Show", func() {
+		fyne.NewMenuItem("change icon", func() {
 			fmt.Println("Clicked")
 			desk.SetSystemTrayIcon(resIconReviewable)
 		}),
-		fyne.NewMenuItem("Show 2", func() {
+		fyne.NewMenuItem("delete self", func() {
 			fmt.Println("Clicked")
 			mprincipal.Items = mprincipal.Items[:1] // how to delete stuff
 			mprincipal.Refresh()
 		}),
+		fyne.NewMenuItemSeparator(),
+		prBox,
 	}
-	go polledPRs()
-	a.Run()
 }
 
 func ehp(err error) {

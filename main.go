@@ -34,18 +34,28 @@ func createApp() fyne.App {
 	return a
 }
 
+func clearPRs() {
+	prBox.ChildMenu.Items = []*fyne.MenuItem{}
+	mprincipal.Refresh()
+}
+
+func pushPR(title string, action func()) {
+	prBox.ChildMenu.Items = append(
+		prBox.ChildMenu.Items,
+		fyne.NewMenuItem(title, action),
+	)
+	mprincipal.Refresh()
+}
+
 func addItems() {
 	prBox = fyne.NewMenuItem("PRs", func() {})
-
-	// prBox.ChildMenu.Items = []*fyne.MenuItem{
-	// 	fyne.NewMenuItem("Hello there", func() {}),
-	// 	fyne.NewMenuItemSeparator(),
-	// }
+	prBox.ChildMenu = fyne.NewMenu("PRs")
 
 	mprincipal.Items = []*fyne.MenuItem{
 		fyne.NewMenuItem("change icon", func() {
 			fmt.Println("Clicked")
-			desk.SetSystemTrayIcon(resIconReviewable)
+			pushPR("Test PR", func() {})
+			// desk.SetSystemTrayIcon(resIconReviewable)
 		}),
 		fyne.NewMenuItem("delete self", func() {
 			fmt.Println("Clicked")

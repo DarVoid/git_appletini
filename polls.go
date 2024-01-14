@@ -63,9 +63,9 @@ func syncPolledItems() {
 
 		fmt.Printf("pr.ReviewDecision: %v\n", pr.ReviewDecision)
 
-		if pr.ReviewCount > 0 {
-			fmt.Printf("%v", "❗")
-		}
+		// if pr.ReviewCount > 0 {
+		// 	fmt.Printf("%v", "❗")
+		// }
 	}
 
 	if green && red {

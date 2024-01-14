@@ -12,35 +12,31 @@ func GetPullRequests(url string, data *PrResponse, token string, ctx context.Con
 	req := graphql.NewRequest(
 		`query fetchPRs {
 			viewer {
-			   pullRequests(
+			  pullRequests(
 				orderBy: {field: CREATED_AT, direction: ASC}
 				first: 100
 				states: [OPEN]
-          
-        ) {
+			  ) {
 				edges {
 				  node {
-            id
-					repository{
-             branchProtectionRules(first:100){
-        edges{
-          node{
-            allowsDeletions
-            allowsForcePushes
-          requiresApprovingReviews
-            
-          }
-        }
-      }
+					id
+					repository {
+					  branchProtectionRules(first: 100) {
+						edges {
+						  node {
+							allowsDeletions
+							allowsForcePushes
+							requiresApprovingReviews
+						  }
+						}
+					  }
 					  name
 					  url
-						owner{
-              login 
-              
+					  owner {
+						login
 					  }
 					}
 					reviewDecision
-					
 					title
 					baseRefName
 					headRefName
@@ -48,24 +44,19 @@ func GetPullRequests(url string, data *PrResponse, token string, ctx context.Con
 					permalink
 					reviewRequests {
 					  totalCount
-					  
 					}
-            
-					reviews(first:12) {
-					  
+					reviews(first: 12) {
 					  totalCount
-					  nodes{
+					  nodes {
 						state
-						
 					  }
 					}
 					mergeable
 				  }
 				}
 			  }
-        
 			}
-}`)
+		  }`)
 
 	client := graphql.NewClient(url)
 	// TODO: do the same for organization
@@ -74,7 +65,31 @@ func GetPullRequests(url string, data *PrResponse, token string, ctx context.Con
 
 	if err := client.Run(context.Background(), req, &data); err != nil {
 		fmt.Println(err)
+	}
+}
 
+func ApprovePullRequest(url string, token string, ctx context.Context, id string, body string) { //TODO: fix the graphql injection xD
+
+	req := graphql.NewRequest(fmt.Sprintf(`mutation {
+		addPullRequestReview(input: {
+		  pullRequestId: "%s",
+		  event: APPROVE,
+		  body: "%s"
+		}) {
+		  pullRequestReview {
+			id
+			url
+		  }
+		}
+	  }`, id, body))
+
+	client := graphql.NewClient(url)
+	// TODO: do the same for organization
+
+	req.Header.Add("Authorization", fmt.Sprintf("Bearer %v", token))
+
+	if err := client.Run(context.Background(), req, nil); err != nil {
+		fmt.Println(err)
 	}
 }
 
@@ -88,43 +103,47 @@ type PrResponse struct {
 
 // Gargabe stsart
 type edge struct {
-	Node pullRequest `json:"node"`
+	Node pullRequest `yaml:"node"`
 }
 
 type pullRequest struct {
-	Title       string `json:"title"`
-	BaseRefName string `json:"baseRefName"`
-	HeadRefName string `json:"headRefName"`
-	Number      int    `json:"number"`
-	Permalink   string `json:"permalink"`
+	Id          string `yaml:"id"`
+	Title       string `yaml:"title"`
+	BaseRefName string `yaml:"baseRefName"`
+	HeadRefName string `yaml:"headRefName"`
+	Number      int    `yaml:"number"`
+	Permalink   string `yaml:"permalink"`
 	ReviewCount struct {
-		TotalCount int `json:"totalCount"`
-	} `json:"reviewCount"`
+		TotalCount int `yaml:"totalCount"`
+	} `yaml:"reviewCount"`
 	ReviewRequests struct {
-		TotalCount int `json:"totalCount"`
-	} `json:"reviewRequests"`
-	ReviewDecision string `json:"reviewDecision"`
-	Mergeable      string `json:"mergeable"`
+		TotalCount int `yaml:"totalCount"`
+	} `yaml:"reviewRequests"`
+	ReviewDecision string `yaml:"reviewDecision"`
+	Mergeable      string `yaml:"mergeable"`
 }
 
 // Garbage end
 type PullRequest struct {
-	Title       string `json:"title"`
-	BaseRefName string `json:"baseRefName"`
-	HeadRefName string `json:"headRefName"`
-	Number      int    `json:"number"`
-	Permalink   string `json:"permalink"`
-	ReviewCount int    `json:"reviewCount"`
+	Title       string `yaml:"title"`
+	BaseRefName string `yaml:"baseRefName"`
+	HeadRefName string `yaml:"headRefName"`
+	Number      int    `yaml:"number"`
+	Permalink   string `yaml:"permalink"`
+	ReviewCount int    `yaml:"reviewCount"`
 
-	ReviewRequests int    `json:"reviewRequests"`
-	ReviewDecision string `json:"reviewDecision"`
+	ReviewRequests int    `yaml:"reviewRequests"`
+	ReviewDecision string `yaml:"reviewDecision"`
+	Id             string `yaml:"id"`
 
-	Mergeable string `json:"mergeable"`
+	Mergeable  string         `yaml:"mergeable"`
+	Remainder_ map[string]any `yaml:",inline"`
 }
 
 func (pr pullRequest) transform() PullRequest {
 
 	return PullRequest{
+		Id:             pr.Id,
 		Title:          pr.Title,
 		BaseRefName:    pr.BaseRefName,
 		HeadRefName:    pr.HeadRefName,

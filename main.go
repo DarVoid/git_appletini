@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"git_applet/actions"
 	"git_applet/gitter"
+	"os"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
@@ -47,7 +48,7 @@ func pushPR(pr gitter.PullRequest) {
 	approve_status, _ := decision_messages[pr.ReviewDecision]
 	merge_status, _ := merge_messages[pr.Mergeable]
 
-	title := fmt.Sprintf("(#%d) %s\n[%s] ↦ [%s]\n%s\n%s", pr.Number, pr.Title, pr.HeadRefName, pr.BaseRefName, approve_status, merge_status)
+	title := fmt.Sprintf("🔷 (#%d) %s\n[%s] ↦ [%s]\n%s\n%s", pr.Number, pr.Title, pr.HeadRefName, pr.BaseRefName, approve_status, merge_status)
 
 	pushPRItem(title, map[string]func(){
 		"Open in browser": func() {
@@ -55,9 +56,14 @@ func pushPR(pr gitter.PullRequest) {
 		},
 		"Close PR": func() {
 			// TODO: Close PR
+			fmt.Printf("%v\n", pr.Remainder_)
 		},
 		"Auto-reply with \"LGTM\"": func() {
 			//! Please don't
+			ctx := auth2()
+			token := os.Getenv(Contexts[currentContext].Github.Token)
+			gqlApi := Contexts[currentContext].Github.GraphQL
+			gitter.ApprovePullRequest(gqlApi, token, ctx, pr.Id, "LGTM! 🚀")
 		},
 	})
 }
@@ -108,12 +114,12 @@ func setupItems() {
 }
 
 func setupPRBox() {
-	prBox = fyne.NewMenuItem("Pull Requests", func() {})
+	prBox = fyne.NewMenuItem("📑 Pull Requests", func() {})
 	prBox.ChildMenu = fyne.NewMenu("Pull Requests")
 }
 
 func makeContextLabel() string {
-	return fmt.Sprintf("Context: %s", Contexts[currentContext].Title)
+	return fmt.Sprintf("👥 Context: %s", Contexts[currentContext].Title)
 }
 
 func setupContextSelector() {

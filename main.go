@@ -12,15 +12,21 @@ import (
 )
 
 func main() {
+	loadConfig()
+	loadContext()
 	a := createApp()
-	addItems()
+	setupItems()
 	go polledPRs()
 	a.Run()
 }
 
+func loadContext() {
+	currentContext = config.DefaultContext
+	Contexts = config.Contexts
+}
+
 func createApp() fyne.App {
 	a := app.NewWithID("git_appletini")
-	loadConfig()
 	var ok bool
 	desk, ok = a.(desktop.App)
 	if !ok {
@@ -36,20 +42,6 @@ func createApp() fyne.App {
 	return a
 }
 
-func clearPRItems() {
-	prBox.ChildMenu.Items = []*fyne.MenuItem{}
-	mprincipal.Refresh()
-}
-
-func pushPRItem(title string, action func()) {
-	prBox.ChildMenu.Items = append(
-		prBox.ChildMenu.Items,
-		fyne.NewMenuItem(title, action),
-		fyne.NewMenuItemSeparator(),
-	)
-	mprincipal.Refresh()
-}
-
 func pushPR(pr gitter.PullRequest) {
 
 	approve_status, _ := decision_messages[pr.ReviewDecision]
@@ -57,28 +49,83 @@ func pushPR(pr gitter.PullRequest) {
 
 	title := fmt.Sprintf("(#%d) %s\n[%s] ↦ [%s]\n%s\n%s", pr.Number, pr.Title, pr.HeadRefName, pr.BaseRefName, approve_status, merge_status)
 
-	pushPRItem(title, func() {
-		actions.OpenLink(pr.Permalink, Contexts[currentContext].ChromeProfile)
+	pushPRItem(title, map[string]func(){
+		"Open in browser": func() {
+			actions.OpenLink(pr.Permalink, Contexts[currentContext].ChromeProfile)
+		},
+		"Close PR": func() {
+			// TODO: Close PR
+		},
+		"Auto-reply with \"LGTM\"": func() {
+			//! Please don't
+		},
 	})
 }
 
-func addItems() {
-	prBox = fyne.NewMenuItem("PRs", func() {})
-	prBox.ChildMenu = fyne.NewMenu("PRs")
+func pushPRItem(title string, actions map[string]func()) {
+	prItem := fyne.NewMenuItem(title, func() {})
+
+	prItem.ChildMenu = fyne.NewMenu("Actions")
+	for name, action := range actions {
+		prItem.ChildMenu.Items = append(
+			prItem.ChildMenu.Items,
+			fyne.NewMenuItem(name, action),
+		)
+	}
+
+	prBox.ChildMenu.Items = append(
+		prBox.ChildMenu.Items,
+		prItem,
+		fyne.NewMenuItemSeparator(),
+	)
+	mprincipal.Refresh()
+}
+
+func clearPRItems() {
+	prBox.ChildMenu.Items = []*fyne.MenuItem{}
+	mprincipal.Refresh()
+}
+
+func setupItems() {
+	setupPRBox()
+	setupContextSelector()
 
 	mprincipal.Items = []*fyne.MenuItem{
-		fyne.NewMenuItem("change icon", func() {
+		fyne.NewMenuItem("Change icon", func() {
 			fmt.Println("Clicked")
-			pushPRItem("Test PR", func() {})
-			// desk.SetSystemTrayIcon(resIconReviewable)
+			desk.SetSystemTrayIcon(resIconReviewable)
 		}),
-		fyne.NewMenuItem("delete self", func() {
+		fyne.NewMenuItem("Delete self", func() {
 			fmt.Println("Clicked")
 			mprincipal.Items = mprincipal.Items[:1] // how to delete stuff
 			mprincipal.Refresh()
 		}),
 		fyne.NewMenuItemSeparator(),
 		prBox,
+		fyne.NewMenuItemSeparator(),
+		contextSelector,
+	}
+}
+
+func setupPRBox() {
+	prBox = fyne.NewMenuItem("Pull Requests", func() {})
+	prBox.ChildMenu = fyne.NewMenu("Pull Requests")
+}
+
+func makeContextLabel() string {
+	return fmt.Sprintf("Context: %s", Contexts[currentContext].Title)
+}
+
+func setupContextSelector() {
+	contextSelector = fyne.NewMenuItem(makeContextLabel(), func() {})
+	contextSelector.ChildMenu = fyne.NewMenu("Context")
+	for key, context := range Contexts {
+		key := key
+		contextSelector.ChildMenu.Items = append(contextSelector.ChildMenu.Items, fyne.NewMenuItem(context.Title, func() {
+			currentContext = key
+			contextSelector.Label = makeContextLabel()
+			mprincipal.Refresh()
+		}))
 	}
 }
 

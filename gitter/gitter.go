@@ -12,20 +12,31 @@ func GetPullRequests(url string, data *PrResponse, token string, ctx context.Con
 	req := graphql.NewRequest(
 		`query fetchPRs {
 			viewer {
-			  pullRequests(
+			   pullRequests(
 				orderBy: {field: CREATED_AT, direction: ASC}
 				first: 100
 				states: [OPEN]
-				
-			  ) {
-				
+          
+        ) {
 				edges {
 				  node {
+            id
 					repository{
+             branchProtectionRules(first:100){
+        edges{
+          node{
+            allowsDeletions
+            allowsForcePushes
+          requiresApprovingReviews
+            
+          }
+        }
+      }
 					  name
 					  url
 						owner{
-						id
+              login 
+              
 					  }
 					}
 					reviewDecision
@@ -39,6 +50,7 @@ func GetPullRequests(url string, data *PrResponse, token string, ctx context.Con
 					  totalCount
 					  
 					}
+            
 					reviews(first:12) {
 					  
 					  totalCount
@@ -51,8 +63,9 @@ func GetPullRequests(url string, data *PrResponse, token string, ctx context.Con
 				  }
 				}
 			  }
+        
 			}
-		  }`)
+}`)
 
 	client := graphql.NewClient(url)
 	// TODO: do the same for organization

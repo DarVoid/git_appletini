@@ -16,6 +16,7 @@ var config types.Config
 var Contexts types.ContextMap
 var currentContext string
 var prBox *fyne.MenuItem
+var contextSelector *fyne.MenuItem
 var currentHash string = ""
 var client *http.Client
 var prs []gitter.PullRequest

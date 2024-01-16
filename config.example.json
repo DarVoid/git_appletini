@@ -1,7 +1,7 @@
 {
   "contexts": {
     "personal": {
-      "title": "personal",
+      "title": "Personal",
       "chrome_profile": "<chrome profile to open with this context>",
       "github": {
         "host": "github.com",
@@ -20,7 +20,7 @@
       "title": "Work",
       "chrome_profile": "Profile 2",
       "github": {
-        "host": "slef.hosted.domain.com",
+        "host": "self.hosted.domain.com",
         "gqlAPI": "https://slef.hosted.domain.com/graphql",
         "username": "jane.dame",
         "token": "GITHUB_GRAPHQL_TEST_TOKEN",

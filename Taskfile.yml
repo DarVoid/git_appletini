@@ -31,7 +31,7 @@ tasks:
     cmds:
       - mkdir -p dist/
       - task: clean
-      - go build -o dist/ main.go
+      - go build -o dist/ main.go icons.go polls.go auth.go globals.go config.go PRMessages.go
     #silent: true
   clean: 
     desc: remove dist files

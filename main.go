@@ -84,12 +84,12 @@ func pushPRItem(title string, actions map[string]func()) {
 		prItem,
 		fyne.NewMenuItemSeparator(),
 	)
-	mprincipal.Refresh()
+	Refresh()
 }
 
 func clearPRItems() {
 	prBox.ChildMenu.Items = []*fyne.MenuItem{}
-	mprincipal.Refresh()
+	Refresh()
 }
 
 func setupItems() {
@@ -104,7 +104,7 @@ func setupItems() {
 		fyne.NewMenuItem("Delete self", func() {
 			fmt.Println("Clicked")
 			mprincipal.Items = mprincipal.Items[:1] // how to delete stuff
-			mprincipal.Refresh()
+			Refresh()
 		}),
 		fyne.NewMenuItemSeparator(),
 		prBox,
@@ -130,7 +130,7 @@ func setupContextSelector() {
 		contextSelector.ChildMenu.Items = append(contextSelector.ChildMenu.Items, fyne.NewMenuItem(context.Title, func() {
 			currentContext = key
 			contextSelector.Label = makeContextLabel()
-			mprincipal.Refresh()
+			Refresh()
 		}))
 	}
 }
@@ -140,4 +140,7 @@ func ehp(err error) {
 		fmt.Printf("%v\n", err)
 		panic(err)
 	}
+}
+func Refresh() {
+	mprincipal.Refresh()
 }

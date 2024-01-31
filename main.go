@@ -3,13 +3,14 @@ package main
 import (
 	_ "embed"
 	"fmt"
-	"git_applet/actions"
-	"git_applet/gitter"
 	"os"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/driver/desktop"
+
+	"git_applet/actions"
+	"git_applet/gitter"
 )
 
 func main() {
@@ -50,6 +51,7 @@ func pushPR(pr gitter.PullRequest) {
 
 	title := fmt.Sprintf("🔷 (#%d) %s\n[%s] ↦ [%s]\n%s\n%s", pr.Number, pr.Title, pr.HeadRefName, pr.BaseRefName, approve_status, merge_status)
 
+	fmt.Println("author: ", pr.Author)
 	pushPRItem(title, map[string]func(){
 		"Open in browser": func() {
 			actions.OpenLink(pr.Permalink, Contexts[currentContext].ChromeProfile)
@@ -100,12 +102,12 @@ func setupItems() {
 		fyne.NewMenuItem("Change icon", func() {
 			fmt.Println("Clicked")
 			desk.SetSystemTrayIcon(resIconReviewable)
-		}),
+		}), // TODO: remove when app complete (showcase only)
 		fyne.NewMenuItem("Delete self", func() {
 			fmt.Println("Clicked")
 			mprincipal.Items = mprincipal.Items[:1] // how to delete stuff
 			Refresh()
-		}),
+		}), // TODO: remove when app complete (showcase only)
 		fyne.NewMenuItemSeparator(),
 		prBox,
 		fyne.NewMenuItemSeparator(),

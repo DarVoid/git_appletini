@@ -36,6 +36,9 @@ func GetPullRequests(url string, data *PrResponse, token string, ctx context.Con
 						login
 					  }
 					}
+					author{
+						login
+					}
 					reviewDecision
 					title
 					baseRefName
@@ -113,6 +116,9 @@ type pullRequest struct {
 	HeadRefName string `yaml:"headRefName"`
 	Number      int    `yaml:"number"`
 	Permalink   string `yaml:"permalink"`
+	Author      struct {
+		Name string `yaml:"login"`
+	} `yaml:"author"`
 	ReviewCount struct {
 		TotalCount int `yaml:"totalCount"`
 	} `yaml:"reviewCount"`
@@ -125,13 +131,13 @@ type pullRequest struct {
 
 // Garbage end
 type PullRequest struct {
-	Title       string `yaml:"title"`
-	BaseRefName string `yaml:"baseRefName"`
-	HeadRefName string `yaml:"headRefName"`
-	Number      int    `yaml:"number"`
-	Permalink   string `yaml:"permalink"`
-	ReviewCount int    `yaml:"reviewCount"`
-
+	Title          string `yaml:"title"`
+	BaseRefName    string `yaml:"baseRefName"`
+	HeadRefName    string `yaml:"headRefName"`
+	Number         int    `yaml:"number"`
+	Permalink      string `yaml:"permalink"`
+	ReviewCount    int    `yaml:"reviewCount"`
+	Author         string `yaml:"author"`
 	ReviewRequests int    `yaml:"reviewRequests"`
 	ReviewDecision string `yaml:"reviewDecision"`
 	Id             string `yaml:"id"`
@@ -141,13 +147,13 @@ type PullRequest struct {
 }
 
 func (pr pullRequest) transform() PullRequest {
-
 	return PullRequest{
 		Id:             pr.Id,
 		Title:          pr.Title,
 		BaseRefName:    pr.BaseRefName,
 		HeadRefName:    pr.HeadRefName,
 		Number:         pr.Number,
+		Author:         pr.Author.Name,
 		Permalink:      pr.Permalink,
 		ReviewCount:    pr.ReviewCount.TotalCount,
 		ReviewRequests: pr.ReviewRequests.TotalCount,

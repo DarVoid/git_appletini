@@ -1,0 +1,19 @@
+
+query {
+  viewer {
+    login
+    isViewer
+    topRepositories(first: 100, orderBy: {field: UPDATED_AT, direction: ASC}) {
+      nodes {
+        name
+        pullRequests(first: 21, states: [OPEN]) {
+          edges {
+            node {
+              number
+            }
+          }
+        }
+      }
+    }
+  }
+}

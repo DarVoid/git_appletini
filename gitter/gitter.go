@@ -9,7 +9,7 @@ import (
 
 func GetPullRequests(url string, data *PrResponse, token string, ctx context.Context) {
 
-	req := graphql.NewRequest(
+	req := graphql.NewRequest( // TODO: maybe get the query from .gql file
 		`query fetchPRs {
 			viewer {
 			  pullRequests(

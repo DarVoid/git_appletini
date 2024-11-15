@@ -1,0 +1,50 @@
+query PRs {
+{{ range .RepoList }}
+  {{ .Identifier }}: repository(name: "{{ .RepoName }}", owner: "{{ .RepoOwner }}") {
+    label(name: "{{ .Label }}") {
+      pullRequests(
+        orderBy: { field: CREATED_AT, direction: ASC }
+        first: {{.PrAmmount}}
+        states: [OPEN]
+      ) {
+        ...getPullRequest
+      }
+    }
+  }
+  {{end}}
+}
+
+fragment getPullRequest on PullRequestConnection {
+  edges {
+    node {
+      title
+      url
+      createdAt
+      permalink
+      mergeable
+      state
+      ...getReviewer
+    }
+  }
+}
+
+fragment getReviewer on PullRequest {
+  reviews(first: {{ .ReviewAmmount }}) {
+    reviews: edges {
+      node {
+        state
+        body
+        comments(first: {{ .CommentsAmmount }}) {
+          edges {
+            node {
+              body
+            }
+          }
+        }
+        author {
+          login
+        }
+      }
+    }
+  }
+}

@@ -5,6 +5,7 @@ go 1.20
 require (
 	fyne.io/fyne/v2 v2.4.3
 	fyne.io/systray v1.10.1-0.20231115130155-104f5ef7839e
+	github.com/iancoleman/strcase v0.3.0
 	github.com/machinebox/graphql v0.2.2
 	golang.org/x/oauth2 v0.0.0-20210402161424-2e8d93401602
 )

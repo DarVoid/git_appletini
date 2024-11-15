@@ -17,7 +17,7 @@ func main() {
 	// loadConfig()
 	// loads tracking configuration
 	loadTrackingConfig()
-
+	createQuery()
 	// fmt.Println(Config)
 	// loadContext()
 	// fmt.Println(Contexts)

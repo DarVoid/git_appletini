@@ -1,6 +1,7 @@
 package main
 
 import (
+	"io"
 	"net/http"
 
 	"fyne.io/fyne/v2"
@@ -18,6 +19,9 @@ var Config types.Config
 const TRACKING_CONFIG_FILE = "tracking.config.json"
 
 var TrackingConfig types.TrackingConfig
+var PrQuery io.Writer
+var SavedPRQuerry string
+
 var Contexts types.ContextMap
 var currentContext string
 var prBox *fyne.MenuItem

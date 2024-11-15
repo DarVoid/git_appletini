@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -32,14 +33,27 @@ func createQuery() {
 	if err != nil {
 		panic(fmt.Sprintf("cannot load template funcmap"))
 	}
-	fileOutputPath := "./finalQuery.gql"
-	outputFile, err := os.Create(fileOutputPath)
-	err = loadedTemplate.Execute(outputFile, TrackingConfig)
+	PrQuery = new(bytes.Buffer)
 
+	err = loadedTemplate.Execute(PrQuery, TrackingConfig)
 	if err != nil {
-		panic(fmt.Sprintf("cannot create query file: %v", fileOutputPath))
+		panic(fmt.Sprintf("cannot create query"))
 	}
-	fmt.Println(string(tpl))
+
+	// query created from config
+	SavedPRQuerry = fmt.Sprint(PrQuery)
+	// fmt.Println(SavedPRQuerry)
+
+	// fileOutputPath := "./finalQuery.gql"
+	// outputFile, err := os.Create(fileOutputPath)
+	// if err != nil {
+	// 	panic(fmt.Sprintf("cannot create file: %v", fileOutputPath))
+	// }
+	// // write string to file
+	// _, err = outputFile.Write([]byte(SavedPRQuerry))
+	// if err != nil {
+	// 	panic(fmt.Sprintf("cannot write to file: %v", fileOutputPath))
+	// }
 }
 
 var funcMap = template.FuncMap{

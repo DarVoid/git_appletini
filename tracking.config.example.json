@@ -1,0 +1,30 @@
+{   
+    "prAmmount":"10",
+    "reviewAmmount":"10",
+    "commentsAmmount":"10",
+    "repoList":[
+        
+        {
+            "name":"git_appletini",
+            "owner": "darvoid",
+            "identifier": "labeledGit"
+        }
+
+    ],
+    "labeledRepoList":[
+        {
+            "name":"git_appletini",
+            "owner": "darvoid",
+            "label": "bug",
+            "identifier": "labeledGit"
+
+        },
+        {
+            "name":"git_appletini",
+            "owner": "darvoid",
+            "label": "feature",
+            "identifier": "labeledGit"
+
+        }
+    ]
+}

@@ -1,10 +1,22 @@
 query PRs {
 {{ range .RepoList }}
-  {{ .Identifier }}: repository(name: "{{ .RepoName }}", owner: "{{ .RepoOwner }}") {
+  {{ .Identifier }}: repository(name: "{{ .Name }}", owner: "{{ .Owner }}") {
+      pullRequests(
+        orderBy: { field: CREATED_AT, direction: ASC }
+        first: {{$.PrAmmount}}
+        states: [OPEN]
+      ) {
+        ...getPullRequest
+      }
+  }
+  {{end}}
+
+  {{ range .LabeledRepoList }}
+  {{ .Identifier }}: repository(name: "{{ .Name }}", owner: "{{ .Owner }}") {
     label(name: "{{ .Label }}") {
       pullRequests(
         orderBy: { field: CREATED_AT, direction: ASC }
-        first: {{.PrAmmount}}
+        first: {{$.PrAmmount}}
         states: [OPEN]
       ) {
         ...getPullRequest

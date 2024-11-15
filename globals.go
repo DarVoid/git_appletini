@@ -14,6 +14,10 @@ import (
 const CONFIG_FILE = "config.json"
 
 var Config types.Config
+
+const TRACKING_CONFIG_FILE = "tracking.config.json"
+
+var TrackingConfig types.TrackingConfig
 var Contexts types.ContextMap
 var currentContext string
 var prBox *fyne.MenuItem

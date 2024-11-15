@@ -1,7 +1,7 @@
-version: '3'
+version: "3"
 
 tasks:
-  default:   
+  default:
     cmds:
       - task -l
     #silent: true
@@ -17,23 +17,23 @@ tasks:
     desc: format the project
     cmds:
       - go fmt ./...
-  run:   
+  run:
     desc: runs app
     deps:
       - format
     cmds:
-      - go run main.go icons.go polls.go auth.go globals.go config.go prMessages.go
+      - go run main.go icons.go polls.go auth.go globals.go config.go prMessages.go readQuery.go
     #silent: true
-  build: 
+  build:
     desc: build the this dope application
     deps:
       - format
     cmds:
       - mkdir -p dist/
       - task: clean
-      - go build -o dist/ main.go icons.go polls.go auth.go globals.go config.go prMessages.go
+      - go build -o dist/ main.go icons.go polls.go auth.go globals.go config.go prMessages.go readQuery.go
     #silent: true
-  clean: 
+  clean:
     desc: remove dist files
     cmds:
       - rm -rf dist/*

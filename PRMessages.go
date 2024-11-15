@@ -14,5 +14,5 @@ var merge_messages = map[string]string{
 	"MERGEABLE":       "💚 Can be merged",
 	"CONFLICTING":     "🚩 Has conflicts",
 	"REQUIRES_REVIEW": "\n😭 Go ask for reviews",
-	"NO_BUENO":           "\nNO_BUENO",
+	"NO_BUENO":        "\nNO_BUENO",
 }

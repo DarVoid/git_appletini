@@ -13,14 +13,18 @@ import (
 )
 
 func main() {
-	loadConfig()
-	fmt.Println(Config)
-	loadContext()
-	fmt.Println(Contexts)
-	a := createApp()
-	setupItems()
-	go polledPRs()
-	a.Run()
+	// loads user configuration
+	// loadConfig()
+	// loads tracking configuration
+	loadTrackingConfig()
+
+	// fmt.Println(Config)
+	// loadContext()
+	// fmt.Println(Contexts)
+	// a := createApp()
+	// setupItems()
+	// go polledPRs()
+	// a.Run()
 }
 
 func loadContext() {

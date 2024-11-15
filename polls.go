@@ -37,19 +37,18 @@ func getPRs() []gitter.PullRequest {
 	return prsLocal.Extract()
 }
 
-
-func getCurrentAccessToken() string{
+func getCurrentAccessToken() string {
 	return os.Getenv(Contexts[currentContext].Github.Token)
 }
 
-func getGraphQLApi() string{
+func getGraphQLApi() string {
 	return Contexts[currentContext].Github.GraphQL
 }
 
 func polledPRs() {
 	loadContext()
 	for {
-		time.Sleep(getPollDuration()) 
+		time.Sleep(getPollDuration())
 		prs = getPRs()
 		fmt.Println(prs)
 		newHash := hashPRs(prs)
@@ -62,8 +61,8 @@ func polledPRs() {
 
 }
 
-func getPollDuration() time.Duration{
-	return time.Duration(Contexts[currentContext].Poll.Frequency * int(time.Second)) 
+func getPollDuration() time.Duration {
+	return time.Duration(Contexts[currentContext].Poll.Frequency * int(time.Second))
 }
 
 func syncPolledItems() {

@@ -1,5 +1,6 @@
 config.json
 tracking.config.json
 tracking.config.test.json
+finalQuery.gql
 
 /dist/

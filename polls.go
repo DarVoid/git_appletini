@@ -4,8 +4,10 @@ import (
 	"crypto/sha256"
 	"encoding/json"
 	"fmt"
-	"git_applet/gitter"
 	"os"
+	"time"
+
+	"git_applet/gitter"
 )
 
 func makeHash(data []byte) string {
@@ -23,28 +25,47 @@ func hashPRs(prs []gitter.PullRequest) string {
 
 func getPRs() []gitter.PullRequest {
 	ctx := auth2()
-	token := os.Getenv(Contexts[currentContext].Github.Token)
+	token := getCurrentAccessToken()
+	fmt.Println(token)
 	prsLocal := gitter.PrResponse{}
-	gqlApi := Contexts[currentContext].Github.GraphQL
+	fmt.Printf("currentContext: %v\n", currentContext)
+	gqlApi := getGraphQLApi()
+	fmt.Printf("url: %v\n", gqlApi)
+
 	gitter.GetPullRequests(gqlApi, &prsLocal, token, ctx)
 	fmt.Printf("prsLocal: %v\n", prsLocal)
 	return prsLocal.Extract()
 }
 
+
+func getCurrentAccessToken() string{
+	return os.Getenv(Contexts[currentContext].Github.Token)
+}
+
+func getGraphQLApi() string{
+	return Contexts[currentContext].Github.GraphQL
+}
+
 func polledPRs() {
-	currentContext = config.DefaultContext
-	Contexts = config.Contexts
-
-	prs = getPRs()
-
-	newHash := hashPRs(prs)
-
-	if currentHash != newHash {
-		currentHash = newHash
-		syncPolledItems()
+	loadContext()
+	for {
+		time.Sleep(getPollDuration()) 
+		prs = getPRs()
+		fmt.Println(prs)
+		newHash := hashPRs(prs)
+		fmt.Println(newHash)
+		if currentHash != newHash {
+			currentHash = newHash
+			syncPolledItems()
+		}
 	}
 
 }
+
+func getPollDuration() time.Duration{
+	return time.Duration(Contexts[currentContext].Poll.Frequency * int(time.Second)) 
+}
+
 func syncPolledItems() {
 	clearPRItems()
 	green, red := false, false

@@ -22,7 +22,7 @@ tasks:
     deps:
       - format
     cmds:
-      - go run main.go icons.go polls.go auth.go globals.go config.go PRMessages.go
+      - go run main.go icons.go polls.go auth.go globals.go config.go prMessages.go
     #silent: true
   build: 
     desc: build the this dope application
@@ -31,7 +31,7 @@ tasks:
     cmds:
       - mkdir -p dist/
       - task: clean
-      - go build -o dist/ main.go icons.go polls.go auth.go globals.go config.go PRMessages.go
+      - go build -o dist/ main.go icons.go polls.go auth.go globals.go config.go prMessages.go
     #silent: true
   clean: 
     desc: remove dist files

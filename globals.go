@@ -1,18 +1,19 @@
 package main
 
 import (
-	"git_applet/gitter"
-	"git_applet/types"
 	"net/http"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/driver/desktop"
 	"fyne.io/systray"
+
+	"git_applet/gitter"
+	"git_applet/types"
 )
 
 const CONFIG_FILE = "config.json"
 
-var config types.Config
+var Config types.Config
 var Contexts types.ContextMap
 var currentContext string
 var prBox *fyne.MenuItem

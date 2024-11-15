@@ -12,29 +12,29 @@ func GetPullRequests(url string, data *PrResponse, token string, ctx context.Con
 	req := graphql.NewRequest(
 		`query fetchPRs {
 			viewer {
-			  pullRequests(
+				pullRequests(
 				orderBy: {field: CREATED_AT, direction: ASC}
 				first: 100
 				states: [OPEN]
-			  ) {
+				) {
 				edges {
-				  node {
+					node {
 					id
 					repository {
-					  branchProtectionRules(first: 100) {
+						branchProtectionRules(first: 100) {
 						edges {
-						  node {
+							node {
 							allowsDeletions
 							allowsForcePushes
 							requiresApprovingReviews
-						  }
+							}
 						}
-					  }
-					  name
-					  url
-					  owner {
+						}
+						name
+						url
+						owner {
 						login
-					  }
+						}
 					}
 					reviewDecision
 					title
@@ -43,21 +43,24 @@ func GetPullRequests(url string, data *PrResponse, token string, ctx context.Con
 					number
 					permalink
 					reviewRequests {
-					  totalCount
+						totalCount
 					}
 					reviews(first: 12) {
-					  totalCount
-					  nodes {
+						totalCount
+						nodes {
 						state
-					  }
+						body
+						url
+						}
 					}
 					mergeable
-				  }
+					}
 				}
-			  }
+				}
 			}
-		  }`)
+			}`)
 
+	fmt.Println("stuff:", url)
 	client := graphql.NewClient(url)
 	// TODO: do the same for organization
 
@@ -66,6 +69,7 @@ func GetPullRequests(url string, data *PrResponse, token string, ctx context.Con
 	if err := client.Run(context.Background(), req, &data); err != nil {
 		fmt.Println(err)
 	}
+	fmt.Println(data)
 }
 
 func ApprovePullRequest(url string, token string, ctx context.Context, id string, body string) { //TODO: fix the graphql injection xD
@@ -101,7 +105,11 @@ type PrResponse struct {
 	} `json:"viewer"`
 }
 
-// Gargabe stsart
+func MergePR(url string, data *PrResponse, token string, ctx context.Context) {
+	panic("NOT IMPLEMENTED")
+}
+
+// Gargabe start
 type edge struct {
 	Node pullRequest `yaml:"node"`
 }

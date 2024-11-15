@@ -2,14 +2,14 @@
   "contexts": {
     "personal": {
       "title": "Personal",
-      "chrome_profile": "<chrome profile to open with this context>",
+      "chrome_profile": "duque",
       "github": {
         "host": "github.com",
         "gqlAPI": "https://api.github.com/graphql",
-        "username": "johndoe",
-        "token": "insert env variable here that has Personal acces token",
-        "name": "John Doe",
-        "email": "johndoe@sapo.pt"
+        "username": "DarVoid",
+        "token": "GITHUB_ACCESS_TOKEN",
+        "name": "Duque",
+        "email": "jorgemduque@hotmail.com"
       },
       "poll": {
         "enabled": true,

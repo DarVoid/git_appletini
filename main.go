@@ -3,18 +3,20 @@ package main
 import (
 	_ "embed"
 	"fmt"
-	"git_applet/actions"
-	"git_applet/gitter"
-	"os"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/driver/desktop"
+
+	"git_applet/actions"
+	"git_applet/gitter"
 )
 
 func main() {
 	loadConfig()
+	fmt.Println(Config)
 	loadContext()
+	fmt.Println(Contexts)
 	a := createApp()
 	setupItems()
 	go polledPRs()
@@ -22,22 +24,26 @@ func main() {
 }
 
 func loadContext() {
-	currentContext = config.DefaultContext
-	Contexts = config.Contexts
+	currentContext = Config.DefaultContext
+	Contexts = Config.Contexts
 }
 
 func createApp() fyne.App {
+	// create app
 	a := app.NewWithID("git_appletini")
 	var ok bool
+	// get desktop app
 	desk, ok = a.(desktop.App)
 	if !ok {
 		panic("could not create desktop app")
 	}
-
+	// create main menu
 	mprincipal = fyne.NewMenu("Git Applet")
+	// set main menu onto the desktop app created
 	desk.SetSystemTrayMenu(mprincipal)
 
 	a.Lifecycle().SetOnStarted(func() {
+		// set default icon on main menu (github white simple)
 		desk.SetSystemTrayIcon(resIconDefault)
 	})
 	return a
@@ -45,10 +51,11 @@ func createApp() fyne.App {
 
 func pushPR(pr gitter.PullRequest) {
 
-	approve_status, _ := decision_messages[pr.ReviewDecision]
-	merge_status, _ := merge_messages[pr.Mergeable]
+	approveStatus, _ := decision_messages[pr.ReviewDecision]
 
-	title := fmt.Sprintf("🔷 (#%d) %s\n[%s] ↦ [%s]\n%s\n%s", pr.Number, pr.Title, pr.HeadRefName, pr.BaseRefName, approve_status, merge_status)
+	mergeStatus := checkIfMergeable(pr.Mergeable, pr.ReviewDecision)
+
+	title := fmt.Sprintf("🔷 (#%d) %s\n[%s] ↦ [%s]\n%s\n%s", pr.Number, pr.Title, pr.HeadRefName, pr.BaseRefName, approveStatus, mergeStatus)
 
 	pushPRItem(title, map[string]func(){
 		"Open in browser": func() {
@@ -61,11 +68,22 @@ func pushPR(pr gitter.PullRequest) {
 		"Auto-reply with \"LGTM\"": func() {
 			//! Please don't
 			ctx := auth2()
-			token := os.Getenv(Contexts[currentContext].Github.Token)
-			gqlApi := Contexts[currentContext].Github.GraphQL
+			token := getCurrentAccessToken()
+			gqlApi := getGraphQLApi()
 			gitter.ApprovePullRequest(gqlApi, token, ctx, pr.Id, "LGTM! 🚀")
 		},
 	})
+}
+
+func checkIfMergeable(mergeableStatus string, approveStatus string) string {
+	fmt.Println(mergeableStatus, approveStatus)
+	// default message to be shown should be under this key
+	decision := "NO_BUENO"
+	// combination of different statuses set decision
+	if mergeableStatus == "MERGEABLE" && approveStatus == "REVIEW_REQUIRED" {
+		decision = "REQUIRES_REVIEW"
+	}
+	return merge_messages[decision]
 }
 
 func pushPRItem(title string, actions map[string]func()) {
@@ -97,15 +115,15 @@ func setupItems() {
 	setupContextSelector()
 
 	mprincipal.Items = []*fyne.MenuItem{
-		fyne.NewMenuItem("Change icon", func() {
-			fmt.Println("Clicked")
-			desk.SetSystemTrayIcon(resIconReviewable)
-		}),
-		fyne.NewMenuItem("Delete self", func() {
-			fmt.Println("Clicked")
-			mprincipal.Items = mprincipal.Items[:1] // how to delete stuff
-			Refresh()
-		}),
+		// fyne.NewMenuItem("Change icon", func() {
+		// 	fmt.Println("Clicked")
+		// 	desk.SetSystemTrayIcon(resIconReviewable)
+		// }),
+		// fyne.NewMenuItem("Delete self", func() {
+		// 	fmt.Println("Clicked")
+		// 	mprincipal.Items = mprincipal.Items[:1] // how to delete stuff
+		// 	Refresh()
+		// }),
 		fyne.NewMenuItemSeparator(),
 		prBox,
 		fyne.NewMenuItemSeparator(),

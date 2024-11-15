@@ -29,8 +29,16 @@ query PRs {
 fragment getPullRequest on PullRequestConnection {
   edges {
     node {
+      id
       title
       url
+      baseRefName
+      headRefName
+      
+      reviewRequests {
+        totalCount
+      }
+      reviewDecision
       createdAt
       permalink
       mergeable
@@ -42,7 +50,7 @@ fragment getPullRequest on PullRequestConnection {
 
 fragment getReviewer on PullRequest {
   reviews(first: {{ .ReviewAmmount }}) {
-    reviews: edges {
+    edges {
       node {
         state
         body

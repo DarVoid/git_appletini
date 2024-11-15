@@ -1,4 +1,5 @@
 config.json
 tracking.config.json
+tracking.config.test.json
 
 /dist/

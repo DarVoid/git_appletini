@@ -24,6 +24,7 @@ func main() {
 	a := createApp()
 	setupItems()
 	go polledPRs()
+	go polledTrackedPRs()
 	a.Run()
 }
 
@@ -78,6 +79,31 @@ func pushPR(pr gitter.PullRequest) {
 		},
 	})
 }
+func pushTrackedPR(pr gitter.PullRequest) {
+
+	approveStatus, _ := decision_messages[pr.ReviewDecision]
+
+	mergeStatus := checkIfMergeable(pr.Mergeable, pr.ReviewDecision)
+
+	title := fmt.Sprintf("🔷 (#%d) %s\n[%s] ↦ [%s]\n%s\n%s", pr.Number, pr.Title, pr.HeadRefName, pr.BaseRefName, approveStatus, mergeStatus)
+
+	pushTrackedPRItem(title, map[string]func(){
+		"Open in browser": func() {
+			actions.OpenLink(pr.Permalink, Contexts[currentContext].ChromeProfile)
+		},
+		"Close PR": func() {
+			// TODO: Close PR
+			fmt.Printf("%v\n", pr.Remainder_)
+		},
+		"Auto-reply with \"LGTM\"": func() {
+			//! Please don't
+			ctx := auth2()
+			token := getCurrentAccessToken()
+			gqlApi := getGraphQLApi()
+			gitter.ApprovePullRequest(gqlApi, token, ctx, pr.Id, "LGTM! 🚀")
+		},
+	})
+}
 
 func checkIfMergeable(mergeableStatus string, approveStatus string) string {
 	fmt.Println(mergeableStatus, approveStatus)
@@ -108,9 +134,31 @@ func pushPRItem(title string, actions map[string]func()) {
 	)
 	Refresh()
 }
+func pushTrackedPRItem(title string, actions map[string]func()) {
+	prItem := fyne.NewMenuItem(title, func() {})
+
+	prItem.ChildMenu = fyne.NewMenu("Actions")
+	for name, action := range actions {
+		prItem.ChildMenu.Items = append(
+			prItem.ChildMenu.Items,
+			fyne.NewMenuItem(name, action),
+		)
+	}
+
+	trackedPrBox.ChildMenu.Items = append(
+		trackedPrBox.ChildMenu.Items,
+		prItem,
+		fyne.NewMenuItemSeparator(),
+	)
+	Refresh()
+}
 
 func clearPRItems() {
 	prBox.ChildMenu.Items = []*fyne.MenuItem{}
+	Refresh()
+}
+func clearTrackedPRItems() {
+	trackedPrBox.ChildMenu.Items = []*fyne.MenuItem{}
 	Refresh()
 }
 

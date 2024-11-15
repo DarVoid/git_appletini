@@ -42,18 +42,18 @@ func createQuery() {
 
 	// query created from config
 	SavedPRQuerry = fmt.Sprint(PrQuery)
-	// fmt.Println(SavedPRQuerry)
+	fmt.Println(SavedPRQuerry)
 
-	// fileOutputPath := "./finalQuery.gql"
-	// outputFile, err := os.Create(fileOutputPath)
-	// if err != nil {
-	// 	panic(fmt.Sprintf("cannot create file: %v", fileOutputPath))
-	// }
-	// // write string to file
-	// _, err = outputFile.Write([]byte(SavedPRQuerry))
-	// if err != nil {
-	// 	panic(fmt.Sprintf("cannot write to file: %v", fileOutputPath))
-	// }
+	fileOutputPath := "./finalQuery.gql"
+	outputFile, err := os.Create(fileOutputPath)
+	if err != nil {
+		panic(fmt.Sprintf("cannot create file: %v", fileOutputPath))
+	}
+	// write string to file
+	_, err = outputFile.Write([]byte(SavedPRQuerry))
+	if err != nil {
+		panic(fmt.Sprintf("cannot write to file: %v", fileOutputPath))
+	}
 }
 
 var funcMap = template.FuncMap{
